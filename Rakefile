@@ -10,7 +10,7 @@ begin
     gem.email       = "corey@coolerator.net"
     gem.homepage    = "http://github.com/coreyti/coolerator.vision"
     gem.authors     = ["Corey Innis"]
-    gem.files      += Dir['app/**/*.erb']
+    gem.files      += Dir['app/**/*.*']
     gem.files      += Dir['public/**/*.*']
     gem.add_development_dependency "rspec", ">= 1.2.9"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings

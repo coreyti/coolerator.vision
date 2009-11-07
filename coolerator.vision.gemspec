@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{coolerator.vision}
-  s.version = "0.0.0"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Corey Innis"]
@@ -23,17 +23,26 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
-     "app/views/engine_assets/javascripts/vendor/jquery/jquery.js.erb",
-     "app/views/engine_assets/stylesheets/vendor/coolerator/reset.css.erb",
+     "app/placeholder.txt",
+     "coolerator.vision.gemspec",
      "lib/coolerator.vision.rb",
      "public/javascripts/vendor/coolerator/coolerator.base.js",
+     "public/javascripts/vendor/coolerator/coolerator.base.js",
+     "public/javascripts/vendor/coolerator/coolerator.filter.js",
      "public/javascripts/vendor/coolerator/coolerator.filter.js",
      "public/javascripts/vendor/coolerator/coolerator.module.js",
+     "public/javascripts/vendor/coolerator/coolerator.module.js",
+     "public/javascripts/vendor/coolerator/coolerator.registrar.js",
      "public/javascripts/vendor/coolerator/coolerator.registrar.js",
      "public/javascripts/vendor/coolerator/coolerator.remote.js",
+     "public/javascripts/vendor/coolerator/coolerator.remote.js",
+     "public/javascripts/vendor/coolerator/coolerator.view.js",
      "public/javascripts/vendor/coolerator/coolerator.view.js",
      "public/javascripts/vendor/jquery/jquery.easing.js",
+     "public/javascripts/vendor/jquery/jquery.easing.js",
      "public/javascripts/vendor/jquery/jquery.js",
+     "public/javascripts/vendor/jquery/jquery.js",
+     "public/javascripts/vendor/prez/prez.js",
      "public/javascripts/vendor/prez/prez.js",
      "rails/init.rb",
      "spec/coolerator.vision_spec.rb",
