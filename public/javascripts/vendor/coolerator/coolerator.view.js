@@ -1,39 +1,27 @@
 (function($) {
   $.extend(Coolerator, {
-    // hmm, may not need to store Views.
-    Views : {},
-
     View : function View(key) {
       this.key = key;
-      var view = this;
-
-      $(function() {
-        view = $.fn.extend(Prez.build(view, {}), view);
-      });
-
-      Coolerator.Views[key] = view;
-      return view;
     }
   });
 
   $.extend(Coolerator.View.prototype, {
-    scooby : 1,
     extend : function extend(extension) {
       // NOTE: if we have a matching method herein, rewrite the incoming
       //       to wrap it with 'super' ... with({ super : function() {} })...
       var self = this;
 
-      $.each(extension.methods, function(name, fn) {
-        if(self.methods[name]) {
+      $.each(extension.instance.methods, function(name, fn) {
+        if(self.instance.methods[name]) {
           var super = {
-            super : self.methods[name]
+            super : self.instance.methods[name]
           }
 
           var child = fn;
               child = child.toString().match(Coolerator.REGEX.FUNCTION_BODY)[1];
               child = new Function('super', 'with(super) { ' + child + ' }');
 
-          extension.methods[name] = function() {
+          extension.instance.methods[name] = function() {
             var self = this;
             child.call(self, super);
           }
@@ -51,35 +39,30 @@
       Coolerator.Registrar.subscribe(self, callback);
     },
 
-    methods : {
-      initialize : function initialize() {
-        console.info('super#initialize');
-      },
+    build : function build(attributes) {
+      var result = Prez.build(this.instance, attributes || {});
 
-      foo : function foo() {
-        console.info('super#foo');
-      },
+      // TODO: consider making a call to view.subscribe
+      function subscribe(callback) {
+        callback = callback.toString().match(Coolerator.REGEX.FUNCTION_BODY)[1];
+        callback = new Function('registrar', 'with(registrar) { ' + callback + ' } ;');
+        Coolerator.Registrar.subscribe(result, callback);
+      }
 
-      build : function build(attributes) {
-        var result = Prez.build(this, attributes);
+      subscribe(result.subscribe);
+      return result;
+    },
 
-        function subscribe(callback) {
-          callback = callback.toString().match(/^[^\{]*{((.*\n*)*)}/m)[1];
-          callback = new Function('registrar', 'with(registrar) { ' + callback + ' } ;');
-          Coolerator.Registrar.subscribe(result, callback);
+    instance : {
+      methods : {
+        initialize : function initialize() {
+          console.info('super#initialize');
+        },
+
+        expand : function expand(selector) {
+          return '#' + this.id + ' ' + selector;
         }
-
-        subscribe(result.subscribe);
-        return result;
-      },
-
-      expand : function expand(selector) {
-        return '#' + this.id + ' ' + selector;
       }
     }
   });
 })(jQuery);
-
-// toString : function toString() {
-//   return "<Coolerator.View key='" + this.key + "'>"
-// }
