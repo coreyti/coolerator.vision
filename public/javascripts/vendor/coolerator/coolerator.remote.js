@@ -1,16 +1,20 @@
 (function($) {
   $(function() {
-    var self     = Coolerator.Remote;
-    var selector = 'form[data-remote]:not([data-remote=false])';
+    var self      = Coolerator.Remote;
+    var attribute = '[data-remote]:not([data-remote=false])';
+    var selectors = {
+      form : 'form' + attribute,
+      link : 'a'    + attribute
+    };
 
     Coolerator.Filter({
       before : function before(view) {
         $.each(view, function(name, partial) {
-          var match = partial.match_for(selector);
+          var match = partial.match_for(selectors.form);
 
           if(match) {
             match.bind('submit', function(e) {
-              return self.form.handle.call($.extend({}, $(e.target), self), e);
+              return self.form.handle.call($.extend({}, this, self), e);
             });
           }
         });
@@ -19,7 +23,16 @@
 
     Coolerator.Registrar.subscribe(self, function(registrar) {
       with(registrar) {
-        on('click', selector + ' input[type=submit]').use(this.form.on_click);
+        on('click', selectors.link)
+          .use(function(e) {
+            return self.link.handle.call($.extend({}, this, self), e);
+          });
+
+        on('click', selectors.form + ' input[type=submit]')
+          .use(this.form.on_click);
+
+        on('keypress', selectors.form + ' :input')
+          .use(this.form.on_keypress);
       }
     });
   });
@@ -59,7 +72,34 @@
       },
 
       link : {
+        handle : function handle(e) {
+          var self      = this;
+          var link      = this;
 
+          function send() {
+            var type = link.attr('data-remote').toUpperCase();
+                type = (type === 'TRUE'  ) ? 'GET'                  : type;
+            var data = (type === 'DELETE') ? { _method : 'delete' } : {};
+            var mime = link.attr('data-mimetype') || 'json';
+
+            $.ajax({
+              type     : type,
+              url      : link.attr('href'),
+              data     : data,
+              dataType : mime,
+              success  : function success(response, status) {
+                self.response.success.call(self, link, response, status);
+              },
+              complete : function complete(request, status) {
+                self.response.complete.call(self, link, request, status);
+              }
+            });
+
+            return false;
+          }
+
+          return send();
+        }
       },
 
       form : {
