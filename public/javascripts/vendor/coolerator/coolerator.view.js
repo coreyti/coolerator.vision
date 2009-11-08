@@ -4,19 +4,11 @@
     Views : {},
 
     View : function View(key) {
-      this.key            = key;
-      this.instance_count = 0; // TODO: pick this up from the collection length, once it exists.
-
-      // Coolerator.Views[key] = $.merge((Coolerator.Views[key] || []), [this]);
-
+      this.key = key;
       var view = this;
 
       $(function() {
-        // view = $.fn.extend(view, Prez.build(view, { name : 'VIEW' }));
-        view = $.fn.extend(Prez.build(view, { name : 'VIEW (undefined)' }), view);
-
-        $('#body').append(view.build({ name : 'instance one' }));
-        $('#body').append(view.build({ name : 'instance two' }));
+        view = $.fn.extend(Prez.build(view, {}), view);
       });
 
       Coolerator.Views[key] = view;
@@ -59,14 +51,6 @@
       Coolerator.Registrar.subscribe(self, callback);
     },
 
-    clicked : function clicked(e) {
-      // ALERT!
-      // temp use of Coolerator.View this way... it won't work once there are more than one!
-      $.each(Coolerator.View.instances, function() {
-        this.clicked();
-      });
-    },
-
     methods : {
       initialize : function initialize() {
         console.info('super#initialize');
@@ -77,9 +61,7 @@
       },
 
       build : function build(attributes) {
-        Coolerator.View.instances = Coolerator.View.instances || [];
-
-        var result = Prez.build(this, $.extend(attributes, { id : 'instance_' + (Coolerator.View.instances.length + 1) }));
+        var result = Prez.build(this, attributes);
 
         function subscribe(callback) {
           callback = callback.toString().match(/^[^\{]*{((.*\n*)*)}/m)[1];
@@ -88,10 +70,6 @@
         }
 
         subscribe(result.subscribe);
-
-        this.push(result[0]);
-        Coolerator.View.instances.push(result);
-
         return result;
       },
 
