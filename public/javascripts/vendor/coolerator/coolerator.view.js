@@ -6,6 +6,8 @@
   });
 
   $.extend(Coolerator.View.prototype, {
+    cache : {},
+
     extend : function extend(extension) {
       // NOTE: if we have a matching method herein, rewrite the incoming
       //       to wrap it with 'super' ... with({ super : function() {} })...
@@ -13,18 +15,12 @@
 
       $.each(extension.instance.methods, function(name, fn) {
         if(self.instance.methods[name]) {
-          var super = {
-            super : self.instance.methods[name]
+          var superb = self.instance.methods[name];
+          function super() {
+            var args = $.makeArray(arguments);
+            superb.apply(args.shift(), args);
           }
-          var child = fn;
-              child = child.toString().match(Coolerator.REGEX.FUNCTION_BODY)[1];
-              child = new Function('super', 'with(super) { ' + child + ' }');
-
-          // TODO: handle arguments
-          extension.instance.methods[name] = function() {
-            var self = this;
-            child.call(self, super);
-          }
+          $.extend(fn, { super : super });
         }
       });
 
@@ -41,7 +37,11 @@
     },
 
     build : function build(attributes) {
-      var result = Prez.build(this.instance, $.extend({ classifier : this.classifier }, (attributes || {})));
+      if(this.cache.instance) {
+        return this.cache.instance;
+      }
+
+      var result = Prez.build(this.instance, $.extend({ collection: this, classifier : this.classifier }, (attributes || {})));
 
       // TODO: consider making a call to view.subscribe
       function subscribe(callback) {
@@ -53,11 +53,17 @@
       }
 
       subscribe(result.subscribe);
+
+      if(this.singleton) {
+        this.cache.instance = result;
+      }
+
       return result;
     },
 
     instance : {
       content : function content(builder, attributes) {
+        console.info('self', self, 'attr', attributes);
         var html_attributes = attributes.classifier ? { 'class' : attributes.classifier } : {};
 
         with(builder) {
