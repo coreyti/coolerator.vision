@@ -45,9 +45,11 @@
 
       // TODO: consider making a call to view.subscribe
       function subscribe(callback) {
-        callback = callback.toString().match(Coolerator.REGEX.FUNCTION_BODY)[1];
-        callback = new Function('registrar', 'with(registrar) { ' + callback + ' } ;');
-        Coolerator.Registrar.subscribe(result, callback);
+        if(callback) {
+          callback = callback.toString().match(Coolerator.REGEX.FUNCTION_BODY)[1];
+          callback = new Function('registrar', 'with(registrar) { ' + callback + ' } ;');
+          Coolerator.Registrar.subscribe(result, callback);
+        }
       }
 
       subscribe(result.subscribe);

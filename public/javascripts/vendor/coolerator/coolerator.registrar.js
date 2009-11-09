@@ -7,27 +7,34 @@
         var self = this;
 
         function register(event_type, subscription) {
-          $(subscription.selector).live(event_type, function(e) {
-            if(e.button && e.button !== 0) {
-              return; // primary button click only
-            }
+          if(subscription.selector.jquery) {
+            subscription.selector.bind(event_type, function(e) {
+              subscription.handler.call(e.target, $.extend(e, { listener : listener }));
+            });
+          }
+          else {
+            $(subscription.selector).live(event_type, function(e) {
+              if(e.button && e.button !== 0) {
+                return; // primary button click only
+              }
 
-            var target = $(e.target);
-            var actual = subscription.selector === 'body' ? target : target.closest(subscription.selector);
-            var result = subscription.handler.call(actual, e);
+              var target = $(e.target);
+              var actual = subscription.selector === 'body' ? target : target.closest(subscription.selector);
+              var result = subscription.handler.call(actual, $.extend(e, { listener : listener }));
 
-            if(false === result) {
-              e.preventDefault();
-              e.stopImmediatePropagation();
-              // return false;
-            }
-            else if('object' === typeof result) {
-              // TODO: allow the chain to be broken (and the bubble as well);
-              result.before && result.before.call(actual, e);
-              result.render && result.render.call(actual, e);
-              result.after  && result.after .call(actual, e);
-            }
-          });
+              if(false === result) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                // return false;
+              }
+              else if('object' === typeof result) {
+                // TODO: allow the chain to be broken (and the bubble as well);
+                result.before && result.before.call(actual, e);
+                result.render && result.render.call(actual, e);
+                result.after  && result.after .call(actual, e);
+              }
+            });
+          }
         }
 
         function subscription(callback) {
@@ -71,6 +78,7 @@
         }
 
         $(function ready() {
+          // HMM... this register passed as a callback is completely unnecessary.
           fn.call(listener, subscription(register));
         });
       }
