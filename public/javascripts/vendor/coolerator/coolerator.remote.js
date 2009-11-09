@@ -1,42 +1,4 @@
 (function($) {
-  $(function() {
-    var self      = Coolerator.Remote;
-    var attribute = '[data-remote]:not([data-remote=false])';
-    var selectors = {
-      form : 'form' + attribute,
-      link : 'a'    + attribute
-    };
-
-    Coolerator.Filter({
-      before : function before(view) {
-        $.each(view, function(name, partial) {
-          var match = partial.match_for(selectors.form);
-
-          if(match) {
-            match.bind('submit', function(e) {
-              return self.form.handle.call($.extend({}, this, self), e);
-            });
-          }
-        });
-      }
-    });
-
-    Coolerator.Registrar.subscribe(self, function(registrar) {
-      with(registrar) {
-        on('click', selectors.link)
-          .use(function(e) {
-            return self.link.handle.call($.extend({}, this, self), e);
-          });
-
-        on('click', selectors.form + ' input[type=submit]')
-          .use(this.form.on_click);
-
-        on('keypress', selectors.form + ' :input')
-          .use(this.form.on_keypress);
-      }
-    });
-  });
-
   $.extend(Coolerator, {
     Remote : {
       // $c.get(...) ???  - or -  $c8r.get(...) ???
@@ -69,6 +31,55 @@
 
       delete : function delete() {
 
+      },
+
+      // TODO: consider allowing for an optional scope argument.
+      capture : function capture() {
+        var self      = this;
+        // TODO: consider binding even if the value is false, but
+        //       only handling if the value is truthy.  this would
+        //       allow the behavior to be changed on the fly.
+        var attribute = '[data-remote]:not([data-remote=false])';
+        var selectors = {
+          form : 'form' + attribute,
+          link : 'a'    + attribute
+        };
+
+        function filter() {
+          Coolerator.Filter({
+            before : function before(view) {
+              $.each(view, function(name, partial) {
+                var match = partial.match_for(selectors.form);
+
+                if(match) {
+                  match.bind('submit', function(e) {
+                    return self.form.handle.call($.extend({}, this, self), e);
+                  });
+                }
+              });
+            }
+          });
+        }
+
+        function subscribe() {
+          Coolerator.Registrar.subscribe(self, function(registrar) {
+            with(registrar) {
+              on('click', selectors.link)
+                .use(function(e) {
+                  return self.link.handle.call($.extend({}, this, self), e);
+                });
+
+              on('click', selectors.form + ' input[type=submit]')
+                .use(this.form.on_click);
+
+              on('keypress', selectors.form + ' :input')
+                .use(this.form.on_keypress);
+            }
+          });
+        }
+
+        filter()
+        subscribe();
       },
 
       link : {
