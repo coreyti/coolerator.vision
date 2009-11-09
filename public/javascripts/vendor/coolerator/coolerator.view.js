@@ -1,7 +1,7 @@
 (function($) {
   $.extend(Coolerator, {
-    View : function View(key) {
-      this.key = key;
+    View : function View(classifier) {
+      this.classifier = classifier;
     }
   });
 
@@ -41,7 +41,7 @@
     },
 
     build : function build(attributes) {
-      var result = Prez.build(this.instance, attributes || {});
+      var result = Prez.build(this.instance, $.extend({ classifier : this.classifier }, (attributes || {})));
 
       // TODO: consider making a call to view.subscribe
       function subscribe(callback) {
@@ -58,8 +58,10 @@
 
     instance : {
       content : function content(builder, attributes) {
+        var html_attributes = attributes.classifier ? { 'class' : attributes.classifier } : {};
+
         with(builder) {
-          div('super (duper) content');
+          div(html_attributes);
         }
       },
 
