@@ -16,11 +16,11 @@
           var super = {
             super : self.instance.methods[name]
           }
-
           var child = fn;
               child = child.toString().match(Coolerator.REGEX.FUNCTION_BODY)[1];
               child = new Function('super', 'with(super) { ' + child + ' }');
 
+          // TODO: handle arguments
           extension.instance.methods[name] = function() {
             var self = this;
             child.call(self, super);
@@ -28,7 +28,8 @@
         }
       });
 
-      $.extend(true, this, extension);
+      $.extend(true, this.instance, extension.instance);
+      $.extend(true, this, extension.collection.methods, extension.collection.configuration);
     },
 
     subscribe : function subscribe(callback) {
@@ -54,13 +55,15 @@
     },
 
     instance : {
+      content : function content(builder, attributes) {
+        with(builder) {
+          div('super (duper) content');
+        }
+      },
+
       methods : {
         initialize : function initialize() {
-          console.info('super#initialize');
-        },
 
-        expand : function expand(selector) {
-          return '#' + this.id + ' ' + selector;
         }
       }
     }
