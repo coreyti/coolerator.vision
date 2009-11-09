@@ -24,13 +24,20 @@
 
   $.fn.extend({
     match_for : function match_for(selector) {
+      var match = undefined;
+
       $.each(this, function(i, content) {
         if(Coolerator.DOM.ELEMENT_NODE === content.nodeType) {
-          var match = (content = $(content)) && content.is(selector) ? content : content.find(selector);
+          match = (content = $(content)) && content.is(selector) ? content : content.find(selector);
 
-          return match.length ? match : undefined;
+          console.info('...match??', match);
+          if(match.length) {
+            return false;
+          }
         }
-      })
+      });
+
+      return match;
     }
   });
 })(jQuery);
