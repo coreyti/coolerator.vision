@@ -30,7 +30,6 @@
         if(Coolerator.DOM.ELEMENT_NODE === content.nodeType) {
           match = (content = $(content)) && content.is(selector) ? content : content.find(selector);
 
-          console.info('...match??', match);
           if(match.length) {
             return false;
           }

@@ -13,10 +13,10 @@
           data     : data,
           dataType : options.dataType || 'json',
           success  : function success(response, status) {
-            self.response.success.call(self, source, response, status, options);
+            self.responder.success.call(self, source, response, status, options);
           },
           complete : function complete(request, status) {
-            self.response.complete.call(self, source, request, status);
+            self.responder.complete.call(self, source, request, status);
           }
         });
       },
@@ -53,7 +53,7 @@
 
                 if(match) {
                   match.bind('submit', function(e) {
-                    return self.form.handle.call($.extend({}, this, self), e);
+                    return self.form.handle.call(e.target, $.extend(e, { listener : self }));
                   });
                 }
               });
@@ -65,9 +65,7 @@
           Coolerator.Registrar.subscribe(self, function(registrar) {
             with(registrar) {
               on('click', selectors.link)
-                .use(function(e) {
-                  return self.link.handle.call($.extend({}, this, self), e);
-                });
+                .use(this.link.handle);
 
               on('click', selectors.form + ' input[type=submit]')
                 .use(this.form.on_click);
@@ -84,8 +82,8 @@
 
       link : {
         handle : function handle(e) {
-          var self      = this;
-          var link      = this;
+          var self = e.listener;
+          var link = $(this);
 
           function send() {
             var type = link.attr('data-remote').toUpperCase();
@@ -99,10 +97,10 @@
               data     : data,
               dataType : mime,
               success  : function success(response, status) {
-                self.response.success.call(self, link, response, status);
+                self.responder.success.call(self, link, response, status);
               },
               complete : function complete(request, status) {
-                self.response.complete.call(self, link, request, status);
+                self.responder.complete.call(self, link, request, status);
               }
             });
 
@@ -115,8 +113,8 @@
 
       form : {
         handle : function handle(e) {
-          var self = this;
-          var form = self.closest('form');
+          var self = e.listener;
+          var form = $(this).closest('form');
 
           function send() {
             var type = (form.attr('data-remote') || form.attr('method')).toUpperCase();
@@ -130,10 +128,15 @@
               data     : data,
               dataType : mime,
               success  : function success(response, status) {
-                self.response.success.call(self, form, response, status, e.data);
+                // this     : jQuery XHR (?)
+                // self     : Coolerator.Remote
+                // form     : jQuery form instance
+                // e        : submit event
+                // response : response from server
+                self.responder.success.call(self, form, response, status);
               },
               complete : function complete(request, status) {
-                self.response.complete.call(self, form, request, status);
+                self.responder.complete.call(self, form, request, status);
               }
             });
 
@@ -146,19 +149,30 @@
         on_click : function on_click(e) {
           this.closest('form').submit();
           return false;
+        },
+
+        on_keypress : function on_keypress(e) {
+          if(e.which === 13) {
+            this.closest('form').submit();
+            return false;
+          }
         }
       },
 
-      response : {
+      // TODO: rename this as 'responder'
+      responder : {
         success : function success(source, response, status, options) {
+          // this     : Coolerator.Remote
+          // source   : source form/link
+
           this.filters.prepare(response);
           this.filters.before (response);
 
-          var e = $.extend($.Event(response.fire), {
-            data    : response.data,
-            view    : response.view,
-            options : options,
-            status  : status
+          var e = $.extend($.Event(response.trigger), {
+            presenter : response.presenter,
+            templates : response.templates,
+            options   : options,
+            status    : status
           });
 
           source.trigger(e);
@@ -174,22 +188,26 @@
 
       filters : {
         prepare : function prepare(response) {
-          $.each(response.view, function prepare_views(name, content) {
-            response.view[name] = $(content);
-            response.filters    = Coolerator.Filters.get(response.fire);
+          $.each(response.templates, function prepare_views(name, content) {
+            response.templates[name] = $(content);
+            response.filters         = Coolerator.Filters.get(response.trigger);
           });
         },
 
         before : function before(response) {
-          $.each(response.filters, function(i, filter) {
-            filter.before(response.view);
-          });
+          if(response.filters) {
+            $.each(response.filters, function(i, filter) {
+              filter.before(response.templates);
+            });
+          }
         },
 
         after : function after(response) {
-          $.each(response.filters, function(i, filter) {
-            filter.after(response.view);
-          });
+          if(response.filters) {
+            $.each(response.filters, function(i, filter) {
+              filter.after(response.templates);
+            });
+          }
         }
       }
     }

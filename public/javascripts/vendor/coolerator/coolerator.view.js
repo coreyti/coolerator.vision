@@ -63,7 +63,6 @@
 
     instance : {
       content : function content(builder, attributes) {
-        console.info('self', self, 'attr', attributes);
         var html_attributes = attributes.classifier ? { 'class' : attributes.classifier } : {};
 
         with(builder) {
@@ -73,7 +72,9 @@
 
       methods : {
         initialize : function initialize() {
-
+          if(this.content) {
+            this.html(this.content);
+          }
         }
       }
     }
