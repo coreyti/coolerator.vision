@@ -120,7 +120,7 @@
 
           function send() {
             var type = (form.attr('data-remote') || form.attr('method')).toUpperCase();
-                type = (type === 'TRUE') ? 'GET' : type;
+                type = (type === 'TRUE') ? 'POST' : type;
             var data = form.serialize();
             var mime = form.attr('data-mimetype') || 'json';
 
