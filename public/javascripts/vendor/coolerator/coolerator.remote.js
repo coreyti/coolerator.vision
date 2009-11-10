@@ -81,6 +81,8 @@
       },
 
       link : {
+        exceptions : [],
+
         handle : function handle(e) {
           var self = e.listener;
           var link = $(this);
@@ -107,7 +109,17 @@
             return false;
           }
 
+          $.each(self.link.exceptions, function(i, selector) {
+            if(link.is(selector)) {
+              send = function send() {};
+            }
+          });
+
           return send();
+        },
+
+        except : function except(selector) {
+          this.exceptions.push(selector);
         }
       },
 
