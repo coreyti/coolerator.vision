@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Corey Innis"]
-  s.date = %q{2009-11-07}
+  s.date = %q{2009-11-10}
   s.description = %q{A Rails plugin}
   s.email = %q{corey@coolerator.net}
   s.extra_rdoc_files = [
@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
+     "app/placeholder.txt",
      "app/placeholder.txt",
      "coolerator.vision.gemspec",
      "lib/coolerator.vision.rb",
