@@ -87,7 +87,14 @@
           var self = e.listener;
           var link = $(this);
 
+          // TODO: consider filters
+          function trigger() {
+            link.trigger('remote/request');
+          }
+
           function send() {
+            trigger();
+
             var type = link.attr('data-remote').toUpperCase();
                 type = (type === 'TRUE'  ) ? 'GET'                  : type;
             var data = (type === 'DELETE') ? { _method : 'delete' } : {};
