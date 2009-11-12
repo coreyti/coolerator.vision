@@ -5,7 +5,7 @@
       scoped : {},
 
       get : function get(scope) {
-        return $.merge(this.global, this.scoped[scope]);
+        return $.merge(this.global, this.scoped[scope] || []);
       }
     },
 
