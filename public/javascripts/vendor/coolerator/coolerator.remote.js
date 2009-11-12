@@ -29,7 +29,7 @@
 
       },
 
-      delete : function delete() {
+      del : function del() {
 
       },
 
@@ -64,6 +64,9 @@
         function subscribe() {
           Coolerator.Registrar.subscribe(self, function(registrar) {
             with(registrar) {
+              use(this.link.handle)
+                .on('click', selectors.link);
+
               on('click', selectors.link)
                 .use(this.link.handle);
 
@@ -171,6 +174,7 @@
         },
 
         on_keypress : function on_keypress(e) {
+          // TODO: if the field is a textarea, only submit with a modifier key.
           if(e.which === 13) {
             this.closest('form').submit();
             return false;

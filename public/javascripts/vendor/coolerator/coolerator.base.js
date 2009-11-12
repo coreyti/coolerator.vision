@@ -1,4 +1,5 @@
 (function($) {
+  // VERSION 0.1.0
   // $.noConflict();
 
   Coolerator = {
