@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+# Configures the git author to a list of developers when pair programming
+# 
+# Usage: pair lm bh (Sets the author to 'Luke Melia and Bryan Helmkamp')
+#        pair       (Unsets the author so the git global config takes effect)
+# 
+# Author: Bryan Helmkamp (http://brynary.com)
+
+#######################################################################
+## Configuration
+
+# PAIR_EMAIL = "developers@weplay.com"
+
+AUTHORS = {
+  "ci" => "Corey Innis",
+  "rh" => "Rachel Heaton"
+}
+
+## End of configuration
+#######################################################################
+
+unless File.exists?(".git")
+  puts "This doesn't look like a git repository."
+  exit 1
+end
+
+authors = ARGV.map do |initials|
+  if AUTHORS[initials.downcase]
+    AUTHORS[initials.downcase]
+  else
+    puts "Couldn't find author name for initials: #{initials}"
+    exit 1
+  end
+end
+
+if authors.any?
+  if authors.size == 1
+    authors = authors.first
+    if ENV['SOLO'].nil?
+      puts "\n"
+      puts " **If you are soloing, please create a separate branch** "
+      puts "\n"
+    end
+  elsif authors.size == 2
+    authors = authors.join(" and ")
+  else
+    authors = authors[0..-2].join(", ") + " and " + authors.last
+  end
+  
+  `git config user.name '#{authors}'`
+  # `git config user.email '#{PAIR_EMAIL}'`
+  
+  puts "user.name = #{authors}"
+  # puts "user.email = #{PAIR_EMAIL}"
+else
+  `git config --unset user.name`
+  # `git config --unset user.email`
+  
+  puts "Unset user.name"
+end
