@@ -207,9 +207,10 @@
 
       filters : {
         prepare : function prepare(response) {
+          response.filters = Coolerator.Filters.get(response.trigger);
+
           $.each(response.templates, function prepare_views(name, content) {
             response.templates[name] = $(content);
-            response.filters         = Coolerator.Filters.get(response.trigger);
           });
         },
 
