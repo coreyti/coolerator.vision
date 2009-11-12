@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{coolerator.vision}
-  s.version = "0.1.0"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Corey Innis"]
-  s.date = %q{2009-11-10}
+  s.date = %q{2009-11-12}
   s.description = %q{A Rails plugin}
   s.email = %q{corey@coolerator.net}
   s.extra_rdoc_files = [
@@ -19,6 +19,8 @@ Gem::Specification.new do |s|
   s.files = [
     ".document",
      ".gitignore",
+     ".gitmodules",
+     ".screwrc",
      "LICENSE",
      "README.rdoc",
      "Rakefile",
@@ -46,7 +48,15 @@ Gem::Specification.new do |s|
      "public/javascripts/vendor/prez/prez.js",
      "public/javascripts/vendor/prez/prez.js",
      "rails/init.rb",
+     "script/pair",
      "spec/coolerator.vision_spec.rb",
+     "spec/javascripts/support/spec_helper.js",
+     "spec/javascripts/vendor/coolerator/coolerator.base_spec.js",
+     "spec/javascripts/vendor/coolerator/coolerator.filter_spec.js",
+     "spec/javascripts/vendor/coolerator/coolerator.module_spec.js",
+     "spec/javascripts/vendor/coolerator/coolerator.registrar_spec.js",
+     "spec/javascripts/vendor/coolerator/coolerator.remote_spec.js",
+     "spec/javascripts/vendor/coolerator/coolerator.view_spec.js",
      "spec/spec.opts",
      "spec/spec_helper.rb"
   ]
@@ -57,7 +67,40 @@ Gem::Specification.new do |s|
   s.summary = %q{A Rails plugin}
   s.test_files = [
     "spec/coolerator.vision_spec.rb",
-     "spec/spec_helper.rb"
+     "spec/spec_helper.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/array_extension.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/asset_location.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/asset_manager.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/configuration.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/dispatcher.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/js_file.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/resources/dir.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/resources/file.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/resources/file_not_found.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/resources/root.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/resources/spec_dir.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/resources/spec_runner.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/resources/streaming_spec_runner.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/resources/suite_completion.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/resources.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/server.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit/string_extension.rb",
+     "spec/support/vendor/screw-unit/lib/screw_unit.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/array_extension_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/asset_location_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/asset_manager_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/configuration_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/dispatcher_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/js_file_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/resources/dir_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/resources/file_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/resources/root_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/resources/spec_dir_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/resources/spec_suite_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/resources/suite_completion_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit/server_spec.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit_spec_helper.rb",
+     "spec/support/vendor/screw-unit/spec/screw_unit_spec_suite.rb"
   ]
 
   if s.respond_to? :specification_version then
