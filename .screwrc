@@ -1,0 +1,15 @@
+ScrewUnit.configure do
+  def absolutize_path(relative_path)
+    basepath = relative_path.match(/^\//) ? '' : path_containing_screwrc
+    File.expand_path(File.join(basepath, relative_path))
+  end
+
+  port 8081
+
+  add_js_location "/engine",                  "public/javascripts"
+  add_js_location("/screw_unit_core",         "spec/support/vendor/screw-unit/client/lib")
+  add_js_location("/screw_unit_vendor",       "spec/support/vendor/screw-unit/client/vendor")
+  add_js_location("/screw_unit_stylesheets",  "spec/support/vendor/screw-unit/client/stylesheets")
+
+  add_js_location "/specs", "spec/javascripts"
+end
