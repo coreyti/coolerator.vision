@@ -1,4 +1,5 @@
 //= require <vendor/jquery/jquery>
+//= require <vendor/prez/prez>
 //= require <vendor/coolerator/coolerator.base>
 //= require <vendor/coolerator/coolerator.registrar>
 //= require <vendor/coolerator/coolerator.remote>

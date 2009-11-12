@@ -2,6 +2,26 @@
   $.extend(Coolerator, {
     View : function View(classifier) {
       this.classifier = classifier;
+
+      $.extend(this, {
+        instance : {
+          content : function content(builder, attributes) {
+            var html_attributes = attributes.classifier ? { 'class' : attributes.classifier } : {};
+
+            with(builder) {
+              div(html_attributes);
+            }
+          },
+
+          methods : {
+            initialize : function initialize() {
+              if(this.content) {
+                this.html(this.content);
+              }
+            }
+          }
+        }
+      });
     }
   });
 
@@ -25,7 +45,7 @@
       });
 
       $.extend(true, this.instance, extension.instance);
-      $.extend(true, this, extension.collection.methods, extension.collection.configuration);
+      extension.collection && $.extend(true, this, extension.collection.methods, extension.collection.configuration);
     },
 
     subscribe : function subscribe(callback) {
@@ -61,22 +81,22 @@
       return result;
     },
 
-    instance : {
-      content : function content(builder, attributes) {
-        var html_attributes = attributes.classifier ? { 'class' : attributes.classifier } : {};
-
-        with(builder) {
-          div(html_attributes);
-        }
-      },
-
-      methods : {
-        initialize : function initialize() {
-          if(this.content) {
-            this.html(this.content);
-          }
-        }
-      }
-    }
+    // instance : {
+    //   content : function content(builder, attributes) {
+    //     var html_attributes = attributes.classifier ? { 'class' : attributes.classifier } : {};
+    //
+    //     with(builder) {
+    //       div(html_attributes);
+    //     }
+    //   },
+    //
+    //   methods : {
+    //     initialize : function initialize() {
+    //       if(this.content) {
+    //         this.html(this.content);
+    //       }
+    //     }
+    //   }
+    // }
   });
 })(jQuery);
