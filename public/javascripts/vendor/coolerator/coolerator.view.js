@@ -1,5 +1,7 @@
 (function($) {
   $.extend(Coolerator, {
+    Views : {},
+
     View : function View(classifier) {
       this.classifier = classifier;
 
@@ -22,6 +24,8 @@
           }
         }
       });
+
+      Coolerator.Views[classifier] = this;
     }
   });
 

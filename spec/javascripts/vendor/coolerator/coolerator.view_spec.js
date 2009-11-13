@@ -1,9 +1,22 @@
 //= require <support/spec_helper>
 
 Screw.Unit(function(c) { with(c) {
+  describe("Coolerator.Views", function() {
+    it("is added to the Coolerator namespace", function() {
+      expect(Coolerator.Views).to_not(be_undefined);
+    });
+
+    describe("when creating a Coolerator.View", function() {
+      it("the View is added to the collection", function() {
+        var view = new Coolerator.View('oh, behave!');
+        expect(Coolerator.Views['oh, behave!']).to(equal, view);
+      });
+    });
+  });
+
   describe("Coolerator.View", function() {
     it("is added to the Coolerator namespace", function() {
-      expect(typeof Coolerator.View).to(equal, 'function');
+      expect(Coolerator.View).to_not(be_undefined);
     });
 
     describe("collection", function() {
