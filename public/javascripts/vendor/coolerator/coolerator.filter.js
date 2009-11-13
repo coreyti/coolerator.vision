@@ -18,7 +18,9 @@
 
         if('object' === typeof first) {
           scope  = $.isArray(first.scope) ? first.scope : [first.scope || '*'];
+
           filter = {
+            label  : first.label,
             before : (first.before || function no_op() {}),
             after  : (first.after  || function no_op() {})
           };
