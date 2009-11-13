@@ -5,31 +5,37 @@
       scoped : {},
 
       get : function get(scope) {
-        return $.merge(this.global, this.scoped[scope] || []);
+        return $.merge($.makeArray(this.global), $.makeArray(this.scoped[scope]));
       }
     },
 
     Filter : function Filter() {
-      var config = $.merge(arguments, ['*'])[0];
+      var scope  = ['*'];
+      var filter = this;
 
-      if('object' === typeof(config)) {
-        var scope  = config.scope || '*';
-        var filter = {
-          before : (config.before || function no_op() {}),
-          after  : (config.after  || function no_op() {})
-        };
-      }
-      else {
-        var scope  = config;
-        var filter = this;
+      if(arguments.length) {
+        var first = arguments[0];
+
+        if('object' === typeof first) {
+          scope  = $.isArray(first.scope) ? first.scope : [first.scope || '*'];
+          filter = {
+            before : (first.before || function no_op() {}),
+            after  : (first.after  || function no_op() {})
+          };
+        }
+        else {
+          scope = arguments;
+        }
       }
 
-      if(scope === '*') {
-        Coolerator.Filters.global.push(filter);
-      }
-      else {
-        Coolerator.Filters.scoped[scope] = $.merge(Coolerator.Filters.scoped[scope] || [], [filter]);
-      }
+      $.each(scope, function(i, selector) {
+        if(selector === '*') {
+          Coolerator.Filters.global.push(filter);
+        }
+        else {
+          Coolerator.Filters.scoped[selector || '*'] = $.merge(Coolerator.Filters.scoped[selector || '*'] || [], [filter]);
+        }
+      });
     }
   });
 

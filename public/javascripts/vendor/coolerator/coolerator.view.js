@@ -33,8 +33,6 @@
     cache : {},
 
     extend : function extend(extension) {
-      // NOTE: if we have a matching method herein, rewrite the incoming
-      //       to wrap it with 'super' ... with({ super : function() {} })...
       var self = this;
 
       $.each(extension.instance.methods, function(name, fn) {
@@ -49,7 +47,9 @@
       });
 
       $.extend(true, this.instance, extension.instance);
-      extension.collection && $.extend(true, this, extension.collection.methods, extension.collection.configuration);
+      if(extension.collection) {
+        $.extend(true, this, extension.collection.methods, extension.collection.configuration);
+      }
     },
 
     subscribe : function subscribe(callback) {
@@ -83,24 +83,6 @@
       }
 
       return result;
-    },
-
-    // instance : {
-    //   content : function content(builder, attributes) {
-    //     var html_attributes = attributes.classifier ? { 'class' : attributes.classifier } : {};
-    //
-    //     with(builder) {
-    //       div(html_attributes);
-    //     }
-    //   },
-    //
-    //   methods : {
-    //     initialize : function initialize() {
-    //       if(this.content) {
-    //         this.html(this.content);
-    //       }
-    //     }
-    //   }
-    // }
+    }
   });
 })(jQuery);

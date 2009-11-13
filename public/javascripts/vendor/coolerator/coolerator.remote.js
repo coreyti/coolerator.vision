@@ -46,27 +46,32 @@
         };
 
         function filter() {
+          function attach(form) {
+            form.bind('submit', function(e) {
+              return self.form.handle.call(e.target, $.extend(e, { listener : self }));
+            });
+          }
+
           Coolerator.Filter({
             before : function before(view) {
               $.each(view, function(name, partial) {
                 var match = partial.match_for(selectors.form);
 
                 if(match) {
-                  match.bind('submit', function(e) {
-                    return self.form.handle.call(e.target, $.extend(e, { listener : self }));
-                  });
+                  attach(match);
                 }
               });
             }
+          });
+
+          $(function() {
+            attach($(selectors.form));
           });
         }
 
         function subscribe() {
           Coolerator.Registrar.subscribe(self, function(registrar) {
             with(registrar) {
-              use(this.link.handle)
-                .on('click', selectors.link);
-
               on('click', selectors.link)
                 .use(this.link.handle);
 
@@ -182,7 +187,6 @@
         }
       },
 
-      // TODO: rename this as 'responder'
       responder : {
         success : function success(source, response, status, options) {
           // this     : Coolerator.Remote
@@ -205,7 +209,7 @@
         },
 
         complete : function complete(source, request, status) {
-          console.info('TODO: response.complete', source, request, status);
+          // TODO
         }
       },
 
