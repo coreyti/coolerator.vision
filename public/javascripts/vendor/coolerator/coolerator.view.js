@@ -38,11 +38,11 @@
       $.each(extension.instance.methods, function(name, fn) {
         if(self.instance.methods[name]) {
           var superb = self.instance.methods[name];
-          function super() {
+          function sup() {
             var args = $.makeArray(arguments);
             superb.apply(args.shift(), args);
           }
-          $.extend(fn, { super : super });
+          $.extend(fn, { 'super' : sup });
         }
       });
 
