@@ -1,11 +1,11 @@
 //= require <support/spec_helper>
 
 Screw.Unit(function(c) { with(c) {
-  describe("Coolerator.Filters", function() {
-    after(function() {
-      Coolerator.Filters.reset();
-    });
+  after(function() {
+    Coolerator.Filters.reset();
+  });
 
+  describe("Coolerator.Filters", function() {
     it("is added to the Coolerator namespace", function() {
       expect(typeof Coolerator.Filters).to(equal, 'object');
     });
@@ -13,10 +13,10 @@ Screw.Unit(function(c) { with(c) {
     describe("methods", function() {
       describe(".count", function() {
         before(function() {
-          Coolerator.Filters.add({});
-          Coolerator.Filters.add('scope 1', {});
-          Coolerator.Filters.add('scope 1', {});
-          Coolerator.Filters.add('scope 2', {});
+          Coolerator.Filter({});
+          Coolerator.Filter({ scope : 'scope 1' });
+          Coolerator.Filter({ scope : 'scope 1' });
+          Coolerator.Filter({ scope : 'scope 2' });
         });
 
         it("returns the count of filters, regardless of scope", function() {
@@ -24,47 +24,13 @@ Screw.Unit(function(c) { with(c) {
         });
       });
 
-      describe(".add", function() {
-        context("with 'scope' as defined", function() {
-          it("increments the count", function() {
-            Coolerator.Filters.add('scope', {});
-            expect(Coolerator.Filters.count()).to(equal, 1);
-          });
-
-          it("adds a scoped filter", function() {
-            Coolerator.Filters.add('scope', { label : 'scoped' });
-            expect(Coolerator.Filters.get('scope')[0].label).to(equal, 'scoped'); // TODO: switch this to use .get once that's implemented.
-          });
-        });
-
-        context("with 'scope' as undefined", function() {
-          it("increments the count", function() {
-            Coolerator.Filters.add({});
-            expect(Coolerator.Filters.count()).to(equal, 1);
-          });
-
-          it("adds a global filter", function() {
-            Coolerator.Filters.add({ label : 'global' });
-            expect(Coolerator.Filters.get('anything')[0].label).to(equal, 'global'); // TODO: switch this to use .get once that's implemented.
-          });
-        });
-      });
-
       describe(".get", function() {
-        var fn;
-
-        before(function() {
-          fn = function fn(scope) {
-            return Coolerator.Filters.get(scope);
-          }
-        });
-
-        context("with 'scope' as defined", function() {
+        context("with 'scope' defined", function() {
           context("when there are matches", function() {
             before(function() {
-              Coolerator.Filters.add({ label : 'global' });
-              Coolerator.Filters.add('uno', { label : 'one' });
-              Coolerator.Filters.add('dos', { label : 'two'});
+              Coolerator.Filter({ label : 'global' });
+              Coolerator.Filter({ label : 'one', scope : 'uno' });
+              Coolerator.Filter({ label : 'two', scope : 'dos' });
             });
 
             it("returns an array which contains all global filters", function() {
@@ -94,16 +60,16 @@ Screw.Unit(function(c) { with(c) {
           });
         });
 
-        context("with 'scope' as undefined", function() {
+        context("with 'scope' undefined", function() {
           it("throws an exception", function() {
-            expect(fn).to(throw_exception);
+            expect(Coolerator.Filters.get).to(throw_exception);
           });
         });
       });
 
       describe(".reset", function() {
         before(function() {
-          Coolerator.Filters.add('scope', { label : 'reset' });
+          Coolerator.Filter({ label : 'reset' });
         });
 
         it("sets 'count' to 0", function() {
@@ -124,20 +90,72 @@ Screw.Unit(function(c) { with(c) {
   });
 
   describe("Coolerator.Filter", function() {
+    var filter;
+
     it("is added to the Coolerator namespace", function() {
       expect(typeof Coolerator.Filter).to(equal, 'function');
     });
 
-    context("when created with a configuration object", function() {
-      context("when the configuration :label exists", function() {
-        var filter = new Coolerator.Filter({
-          label : 'so cool!',
-          scope : 'everywhere'
-        });
+    it("returns the filter", function() {
+      expect(Coolerator.Filter({})).to_not(be_undefined);
+    });
 
-        it("is created with a label", function() {
-          expect(Coolerator.Filters.get('everywhere')[0].label).to(equal, 'so cool!');
-        });
+    context("called with no scope", function() {
+      before(function() {
+        filter = Coolerator.Filter({ label : 'global' });
+      });
+
+      it("adds the filter to the 'global' scope", function() {
+        expect(Coolerator.Filters.get('*')[0].label).to(equal, 'global');
+      });
+    });
+
+    context("called with a single scope", function() {
+      before(function() {
+        filter = Coolerator.Filter({ scope : 'one', label : 'single' });
+      });
+
+      it("adds the filter to that scope", function() {
+        expect(Coolerator.Filters.get('*')).to(be_empty);
+        expect(Coolerator.Filters.get('one')[0].label).to(equal, 'single');
+      });
+    });
+
+    context("called with multiple scopes", function() {
+      before(function() {
+        filter = Coolerator.Filter({ scope : ['one', 'two'], label : 'double' });
+      });
+
+      it("adds the filter to each scope", function() {
+        expect(Coolerator.Filters.get('*')).to(be_empty);
+        expect(Coolerator.Filters.get('one')[0].label).to(equal, 'double');
+        expect(Coolerator.Filters.get('two')[0].label).to(equal, 'double');
+      });
+    });
+
+    describe("the filter", function() {
+      it("defines :label", function() {
+        var filter = Coolerator.Filter({ label : 'label' });
+        expect(filter.label).to(equal, 'label');
+      });
+
+      it("defines :before", function() {
+        function before() {};
+        var filter = Coolerator.Filter({ before : before });
+
+        expect(filter.before).to(equal, before);
+      });
+
+      it("defines :after", function() {
+        function after() {};
+        var filter = Coolerator.Filter({ after : after });
+
+        expect(filter.after).to(equal, after);
+      });
+
+      it("does not include other definitions", function() {
+        var filter = Coolerator.Filter({ scope : 'scope' });
+        expect(filter.scope).to(be_undefined);
       });
     });
   });
