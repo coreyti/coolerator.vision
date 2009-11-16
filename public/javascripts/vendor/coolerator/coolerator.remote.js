@@ -52,8 +52,8 @@
             });
           }
 
-          Coolerator.Filter({
-            before : function before(view) {
+          Coolerator.Filter()
+            .before(function(view) {
               $.each(view, function(name, partial) {
                 var match = partial.match_for(selectors.form);
 
@@ -61,8 +61,7 @@
                   attach(match);
                 }
               });
-            }
-          });
+            });
 
           $(function() {
             attach($(selectors.form));
@@ -189,11 +188,9 @@
 
       responder : {
         success : function success(source, response, status, options) {
-          // this     : Coolerator.Remote
-          // source   : source form/link
+          var filters = Coolerator.Filters.prepare(response.templates, response.trigger);
 
-          this.filters.prepare(response);
-          this.filters.before (response);
+          filters.before();
 
           var e = $.extend($.Event(response.trigger), {
             presenter : response.presenter,
@@ -205,37 +202,11 @@
           source.trigger(e);
           options && options.success && options.success.apply(source, [response, status]);
 
-          this.filters.after(response);
+          filters.after();
         },
 
         complete : function complete(source, request, status) {
           // TODO
-        }
-      },
-
-      filters : {
-        prepare : function prepare(response) {
-          response.filters = Coolerator.Filters.get(response.trigger);
-
-          $.each(response.templates, function prepare_views(name, content) {
-            response.templates[name] = $(content);
-          });
-        },
-
-        before : function before(response) {
-          if(response.filters) {
-            $.each(response.filters, function(i, filter) {
-              filter.before(response.templates);
-            });
-          }
-        },
-
-        after : function after(response) {
-          if(response.filters) {
-            $.each(response.filters, function(i, filter) {
-              filter.after(response.templates);
-            });
-          }
         }
       }
     }
