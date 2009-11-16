@@ -14,7 +14,8 @@
 
 AUTHORS = {
   "ci" => "Corey Innis",
-  "rh" => "Rachel Heaton"
+  "rh" => "Rachel Heaton",
+  "jl" => "Jason Liebrecht"
 }
 
 ## End of configuration
