@@ -2,7 +2,35 @@
 
 Screw.Unit(function(c) { with(c) {
   after(function() {
-    Coolerator.Filters.reset();
+    Coolerator.Filters.clear();
+  });
+
+  describe("an example", function() {
+    before(function() {
+      Coolerator.Filter('scope/one', 'scope/two')
+        .before(function(view) {
+          $.each(view, function(key, partial) {
+            partial.css('border', 'yellow');
+          });
+        })
+        .after(function(view) {
+          $.each(view, function(key, partial) {
+            partial.css('border', 'green');
+          });
+        });
+    });
+
+    it("behaves", function() {
+      var templates = { show : '<div>content</div>' };
+      var filters   = Coolerator.Filters.prepare(templates, 'scope/one');
+      expect(templates.show.jquery).to_not(be_undefined);
+
+      filters.before();
+      expect(templates.show.css('border')).to(match, 'yellow');
+
+      filters.after();
+      expect(templates.show.css('border')).to(match, 'green');
+    });
   });
 
   describe("Coolerator.Filters", function() {
@@ -24,66 +52,96 @@ Screw.Unit(function(c) { with(c) {
         });
       });
 
-      describe(".get", function() {
-        context("with 'scope' defined", function() {
-          context("when there are matches", function() {
-            before(function() {
-              Coolerator.Filter({ label : 'global' });
-              Coolerator.Filter({ label : 'one', scope : 'uno' });
-              Coolerator.Filter({ label : 'two', scope : 'dos' });
-            });
-
-            it("returns an array which contains all global filters", function() {
-              expect(Coolerator.Filters.get('uno')[0].label).to(equal, 'global');
-            });
-
-            it("returns an array which contains scope-matching filters", function() {
-              expect(Coolerator.Filters.get('uno')[1].label).to(equal, 'one');
-            });
-
-            it("returns an array which does not contain scope-mismatching filters", function() {
-              expect(Coolerator.Filters.get('uno')).to(have_length, 2);
-            });
-
-            it("handles a passed scope of '*', returning 'global' filters", function() {
-              var result = Coolerator.Filters.get('*');
-
-              expect(result         ).to(have_length, 1);
-              expect(result[0].label).to(equal,       'global');
-            });
-          });
-
-          context("when there are no matches", function() {
-            it("returns an empty array", function() {
-              expect(Coolerator.Filters.get('nothing')).to(have_length, 0);
-            });
-          });
-        });
-
-        context("with 'scope' undefined", function() {
-          it("throws an exception", function() {
-            expect(Coolerator.Filters.get).to(throw_exception);
-          });
-        });
-      });
-
-      describe(".reset", function() {
+      describe(".clear", function() {
         before(function() {
-          Coolerator.Filter({ label : 'reset' });
+          Coolerator.Filter({ label : 'clear' });
         });
 
         it("sets 'count' to 0", function() {
           expect(Coolerator.Filters.count()).to(equal, 1);
 
-          Coolerator.Filters.reset();
+          Coolerator.Filters.clear();
           expect(Coolerator.Filters.count()).to(equal, 0);
         });
+      });
 
-        it("clears the existing filters", function() {
-          expect(Coolerator.Filters.get('scope')).to(have_length, 1);
+      describe(".prepare", function() {
+        var view;
 
-          Coolerator.Filters.reset();
-          expect(Coolerator.Filters.get('scope')).to(have_length, 0);
+        before(function() {
+          view = { show : '<div>content</div>' };
+        });
+
+        describe("argument handling", function() {
+          var filters;
+
+          context("with appropriate arguments", function() {
+            before(function() {
+              filters = Coolerator.Filters.prepare(view, '*');
+            });
+
+            it("converts the view 'partials' to jQuery objects", function() {
+              expect(view.show.jquery).to_not(be_undefined);
+            });
+
+            describe("the returned filter helper", function() {
+              it("defines #before", function() {
+                expect(filters.before).to_not(throw_exception);
+              });
+
+              it("defines #after", function() {
+                expect(filters.after).to_not(throw_exception);
+              });
+            });
+          });
+
+          context("with fewer than two", function() {
+            before(function() {
+              fn = function fn() {
+                Coolerator.Filters.prepare({});
+              };
+            });
+
+            it("throws an exception", function() {
+              expect(fn).to(throw_exception);
+            });
+          });
+
+          context("with more than two", function() {
+            before(function() {
+              fn = function fn() {
+                Coolerator.Filters.prepare({}, 'scope', 'something else');
+              };
+            });
+
+            it("throws an exception", function() {
+              expect(fn).to(throw_exception);
+            });
+          });
+
+          context("with an undefined 'view'", function() {
+            before(function() {
+              fn = function fn() {
+                Coolerator.Filters.prepare(undefined, 'scope');
+              };
+            });
+
+            it("throws an exception", function() {
+              expect(fn).to(throw_exception);
+            });
+          });
+
+          context("with an undefined 'scope'", function() {
+            before(function() {
+              fn = function fn() {
+                Coolerator.Filters.prepare({ show : '<div>content</div>' }, undefined);
+              };
+            });
+
+            it("throws an exception", function() {
+              expect(fn).to(throw_exception);
+            });
+          });
         });
       });
     });
@@ -96,66 +154,122 @@ Screw.Unit(function(c) { with(c) {
       expect(typeof Coolerator.Filter).to(equal, 'function');
     });
 
-    it("returns the filter", function() {
-      expect(Coolerator.Filter({})).to_not(be_undefined);
-    });
-
-    context("called with no scope", function() {
+    describe("the returned object", function() {
       before(function() {
-        filter = Coolerator.Filter({ label : 'global' });
+        filter = Coolerator.Filter();
       });
 
-      it("adds the filter to the 'global' scope", function() {
-        expect(Coolerator.Filters.get('*')[0].label).to(equal, 'global');
+      it("is defined", function() {
+        expect(filter).to_not(be_undefined);
+      });
+
+      it("defines #before", function() {
+        expect(filter.before).to_not(be_undefined);
+      });
+
+      it("defines #after", function() {
+        expect(filter.after).to_not(be_undefined);
       });
     });
 
-    context("called with a single scope", function() {
+    describe("argument handling", function() {
+      var called;
+
       before(function() {
-        filter = Coolerator.Filter({ scope : 'one', label : 'single' });
+        called = {
+          before : false,
+          after  : false
+        }
       });
 
-      it("adds the filter to that scope", function() {
-        expect(Coolerator.Filters.get('*')).to(be_empty);
-        expect(Coolerator.Filters.get('one')[0].label).to(equal, 'single');
-      });
-    });
+      context("called with no scope", function() {
+        before(function() {
+          Coolerator.Filter()
+            .before(function(view) {
+              called.before = true;
+            })
+            .after(function(view) {
+              called.after = true;
+            });
+        });
 
-    context("called with multiple scopes", function() {
-      before(function() {
-        filter = Coolerator.Filter({ scope : ['one', 'two'], label : 'double' });
-      });
+        it("adds the filter to the 'global' scope", function() {
+          Coolerator.Filters.prepare({}, '*')
+            .before()
+            .after();
 
-      it("adds the filter to each scope", function() {
-        expect(Coolerator.Filters.get('*')).to(be_empty);
-        expect(Coolerator.Filters.get('one')[0].label).to(equal, 'double');
-        expect(Coolerator.Filters.get('two')[0].label).to(equal, 'double');
-      });
-    });
-
-    describe("the filter", function() {
-      it("defines :label", function() {
-        var filter = Coolerator.Filter({ label : 'label' });
-        expect(filter.label).to(equal, 'label');
+          expect(called.before).to(be_true);
+          expect(called.after ).to(be_true);
+        });
       });
 
-      it("defines :before", function() {
-        function before() {};
-        var filter = Coolerator.Filter({ before : before });
+      context("called with a single scope", function() {
+        before(function() {
+          Coolerator.Filter('one')
+            .before(function(view) {
+              called.before = true;
+            })
+            .after(function(view) {
+              called.after = true;
+            });
+        });
 
-        expect(filter.before).to(equal, before);
+        it("adds the filter to the provided scope", function() {
+          Coolerator.Filters.prepare({}, 'one')
+            .before()
+            .after();
+
+          expect(called.before).to(be_true);
+          expect(called.after ).to(be_true);
+        });
+
+        it("does not add the filter to the global scope", function() {
+          Coolerator.Filters.prepare({}, '*')
+            .before()
+            .after();
+
+          expect(called.before).to(be_false);
+          expect(called.after ).to(be_false);
+        });
       });
 
-      it("defines :after", function() {
-        function after() {};
-        var filter = Coolerator.Filter({ after : after });
+      context("called with multiple scopes", function() {
+        before(function() {
+          Coolerator.Filter('one', 'two')
+            .before(function(view) {
+              called.before = true;
+            })
+            .after(function(view) {
+              called.after = true;
+            });
+        });
 
-        expect(filter.after).to(equal, after);
-      });
+        it("adds the filter to the first provided scope", function() {
+          Coolerator.Filters.prepare({}, 'one')
+            .before()
+            .after();
 
-      it("does not include other definitions", function() {
-        var filter = Coolerator.Filter({ scope : 'scope' });
-        expect(filter.scope).to(be_undefined);
+          expect(called.before).to(be_true);
+          expect(called.after ).to(be_true);
+        });
+
+        it("adds the filter to the first provided scope", function() {
+          Coolerator.Filters.prepare({}, 'two')
+            .before()
+            .after();
+
+          expect(called.before).to(be_true);
+          expect(called.after ).to(be_true);
+        });
+
+        it("does not add the filter to the global scope", function() {
+          Coolerator.Filters.prepare({}, '*')
+            .before()
+            .after();
+
+          expect(called.before).to(be_false);
+          expect(called.after ).to(be_false);
+        });
       });
     });
   });
