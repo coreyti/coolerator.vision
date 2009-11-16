@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{coolerator.vision}
-  s.version = "0.2.4"
+  s.version = "0.2.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Corey Innis"]
-  s.date = %q{2009-11-13}
+  s.date = %q{2009-11-16}
   s.description = %q{A Rails plugin}
   s.email = %q{corey@coolerator.net}
   s.extra_rdoc_files = [
