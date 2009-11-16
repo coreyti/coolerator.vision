@@ -44,8 +44,9 @@
         }
 
         return {
-          before : before,
-          after  : after
+          filters : filters, // TODO: see about removing this... it's currently only need for the specs.
+          before  : before,
+          after   : after
         };
       }
     },
@@ -102,6 +103,6 @@
       return __database__['*'] || [];
     }
 
-    return $.merge(__database__['*'] || [], __database__[scope] || []);
+    return $.merge($.merge([], __database__['*'] || []), __database__[scope] || []);
   }
 })(jQuery);

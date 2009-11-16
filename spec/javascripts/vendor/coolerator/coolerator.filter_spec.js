@@ -75,7 +75,17 @@ Screw.Unit(function(c) { with(c) {
         describe("argument handling", function() {
           var filters;
 
-          context("with appropriate arguments", function() {
+          before(function() {
+            Coolerator.Filter()
+              .before(function() {})
+              .after (function() {});
+
+            Coolerator.Filter('scoped')
+              .before(function() {})
+              .after (function() {});
+          });
+
+          context("with appropriate arguments (with global)", function() {
             before(function() {
               filters = Coolerator.Filters.prepare(view, '*');
             });
@@ -84,7 +94,11 @@ Screw.Unit(function(c) { with(c) {
               expect(view.show.jquery).to_not(be_undefined);
             });
 
-            describe("the returned filter helper", function() {
+            describe("the returned filters", function() {
+              it("are limited to global", function() {
+                expect(filters.filters).to(have_length, 1);
+              });
+
               it("defines #before", function() {
                 expect(filters.before).to_not(throw_exception);
               });
@@ -92,6 +106,16 @@ Screw.Unit(function(c) { with(c) {
               it("defines #after", function() {
                 expect(filters.after).to_not(throw_exception);
               });
+            });
+          });
+
+          context("with appropriate arguments (with scoped)", function() {
+            it("does not increase the length upon multiple calls", function() {
+              Coolerator.Filters.prepare(view, 'scoped');
+              Coolerator.Filters.prepare(view, 'scoped');
+              filters = Coolerator.Filters.prepare(view, 'scoped');
+
+              expect(filters.filters).to(have_length, 2);
             });
           });
 
