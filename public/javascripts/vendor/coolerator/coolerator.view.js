@@ -1,85 +1,83 @@
 (function($) {
+  var __database__ = {
+    collections : {},
+    instances   : {}
+  };
+
   $.extend(Coolerator, {
-    Views : {},
+    Views : {
+      get : function get(classifier) {
+        if( ! classifier || /\s+/.test(classifier)) {
+          throw("InvalidArgumentException");
+        }
+
+        return __database__.collections[classifier];
+      }
+    },
 
     View : function View(classifier) {
+      if( ! classifier || /\s+/.test(classifier)) {
+        throw("InvalidArgumentException");
+      }
+
       this.classifier = classifier;
 
-      $.extend(this, {
-        instance : {
-          content : function content(builder, attributes) {
-            var html_attributes = attributes.classifier ? { 'class' : attributes.classifier } : {};
+      __database__.collections[this.classifier] = this;
+      __database__.instances  [this.classifier] = {
+        content : function content(builder, attributes) {
+          var html_attributes = attributes.classifier ? { 'class' : attributes.classifier } : {};
 
-            with(builder) {
-              div(html_attributes);
-            }
-          },
+          with(builder) {
+            div(html_attributes);
+          }
+        },
 
-          methods : {
-            initialize : function initialize() {
-              if(this.content) {
-                this.html(this.content);
-              }
+        methods : {
+          initialize : function initialize() {
+            if(this.content) {
+              this.html(this.content);
             }
           }
         }
-      });
-
-      Coolerator.Views[classifier] = this;
+      };
     }
   });
 
   $.extend(Coolerator.View.prototype, {
-    cache : {},
+    subscribe : function subscribe(fn) {
+      Coolerator.Registrar.subscribe(this, fn);
+    },
 
     extend : function extend(extension) {
-      var self = this;
+      var instance = extension.instance || {};
+      var existing = __database__.instances[this.classifier];
+      delete extension.instance;
 
-      $.each(extension.instance.methods, function(name, fn) {
-        if(self.instance.methods[name]) {
-          var superb = self.instance.methods[name];
+      $.each(instance.methods || {}, function(name, fn) {
+        var superb = existing.methods[name];
+
+        if(superb) {
           function sup() {
             var args = $.makeArray(arguments);
             superb.apply(args.shift(), args);
           }
+
           $.extend(fn, { 'super' : sup });
         }
       });
 
-      $.extend(true, this.instance, extension.instance);
-      if(extension.collection) {
-        $.extend(true, this, extension.collection.methods, extension.collection.configuration);
-      }
-    },
-
-    subscribe : function subscribe(callback) {
-      var self = this;
-      callback = callback.toString().match(Coolerator.REGEX.FUNCTION_BODY)[1];
-      callback = new Function('registrar', 'with(registrar) { ' + callback + ' } ;');
-
-      Coolerator.Registrar.subscribe(self, callback);
+      $.extend(true, __database__.instances[this.classifier], instance);
+      $.extend(true, this, extension);
     },
 
     build : function build(attributes) {
-      if(this.cache.instance) {
-        return this.cache.instance;
-      }
+      // TODO: provide a template cacheing mechanism.
 
-      var result = Prez.build(this.instance, $.extend({ collection: this, classifier : this.classifier }, (attributes || {})));
+      var instance = __database__.instances[this.classifier];
+      var result   = Prez.build(instance, $.extend({ classifier : this.classifier }, (attributes || {})));
 
-      // TODO: consider making a call to view.subscribe
-      function subscribe(callback) {
-        if(callback) {
-          callback = callback.toString().match(Coolerator.REGEX.FUNCTION_BODY)[1];
-          callback = new Function('registrar', 'with(registrar) { ' + callback + ' } ;');
-          Coolerator.Registrar.subscribe(result, callback);
-        }
-      }
-
-      subscribe(result.subscribe);
-
-      if(this.singleton) {
-        this.cache.instance = result;
+      if(result.subscribe) {
+        Coolerator.Registrar.subscribe(result, result.subscribe);
       }
 
       return result;
