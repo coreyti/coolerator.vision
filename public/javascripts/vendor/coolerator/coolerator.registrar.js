@@ -1,4 +1,12 @@
 (function($) {
+  $(function() {
+    $.each(__ready__, function(i, fn) {
+      fn();
+    });
+
+    __after__ && __after__();
+  });
+
   $.extend(Coolerator, {
     Registrar : {
       subscriptions : {},
@@ -77,11 +85,21 @@
           return result;
         }
 
-        $(function ready() {
+        __ready__.push(function() {
           // HMM... this register passed as a callback is completely unnecessary.
           fn.call(listener, subscription(register));
         });
+      },
+
+      after_ready : function after_ready(fn) {
+        __after__ = fn;
       }
     }
   });
+
+
+  // private...................................................................
+
+  var __after__;
+  var __ready__ = [];
 })(jQuery);
