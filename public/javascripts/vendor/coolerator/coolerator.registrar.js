@@ -1,12 +1,4 @@
 (function($) {
-  $(function() {
-    $.each(__ready__, function(i, fn) {
-      fn();
-    });
-
-    __after__ && __after__();
-  });
-
   $.extend(Coolerator, {
     Registrar : {
       subscriptions : {},
@@ -45,7 +37,7 @@
           }
         }
 
-        function subscription(callback) {
+        function subscription() {
           var result = {
             on : function on(event_type, selector) {
               var selector = selector || 'body';
@@ -53,11 +45,11 @@
               function use(handler) {
                 if($.isArray(selector)) {
                   $.each(selector, function each_selector() {
-                    callback(event_type, { selector: this, handler: handler });
+                    register(event_type, { selector: this, handler: handler });
                   });
                 }
                 else {
-                  callback(event_type, { selector: selector, handler: handler });
+                  register(event_type, { selector: selector, handler: handler });
                 }
 
                 return this;
@@ -72,7 +64,7 @@
               function on(event_type, selector) {
                 var selector = selector || 'body';
 
-                callback(event_type, { selector: selector, handler: handler });
+                register(event_type, { selector: selector, handler: handler });
                 return this;
               }
 
@@ -85,12 +77,28 @@
           return result;
         }
 
-        __ready__.push(function() {
-          // HMM... this register passed as a callback is completely unnecessary.
-          fn.call(listener, subscription(register));
+        if($.isReady) {
+          fn.call(listener, subscription());
+        }
+        else {
+          __ready__.push(function() {
+            fn.call(listener, subscription());
+          });
+        }
+
+        $(function() {
+          while(__ready__.length) {
+            var ready_fn = __ready__.shift();
+            ready_fn();
+          }
+
+          if(__after__ && __after__()) {
+            delete __after__;
+          }
         });
       },
 
+      // NOTE: *for now*, this will only fire after the *initial* ready.
       after_ready : function after_ready(fn) {
         __after__ = fn;
       }
